@@ -25,6 +25,9 @@ Payload CMS acts as the central intelligence of IWAS, handling business logic, a
 - **Framework:** **Next.js 15 (App Router)**.
 - **Language:** **TypeScript**.
 - **Database:** **SQLite** (Current Stage). Easy for local development and initial deployment.
+- **Plugins:**
+  - **@payloadcms/plugin-multi-tenant**: Powers the enterprise tenancy model, ensuring strict data isolation and domain-based routing.
+  - **payload-auth (Better Auth)**: Provides unified authentication for Google OAuth and session management.
 - **Core Responsibilities:**
   - Multi-tenant Access Control (RBAC).
   - Package & Pricing Management.
@@ -67,14 +70,16 @@ A dedicated RADIUS service handles the low-level networking protocols and enforc
 
 ## 📁 Summary Matrix
 
-| Component       | Technology     | Role                      |
-| --------------- | -------------- | ------------------------- |
-| **Core App**    | Payload CMS v3 | Business Logic & Admin UI |
-| **Auth Engine** | FreeRADIUS     | Hardware Communication    |
-| **Database**    | **SQLite**     | Data Persistence          |
-| **Network**     | WireGuard      | Secure Tunneling          |
-| **Deployment**  | Docker         | Infrastructure Delivery   |
-| **Language**    | TypeScript     | Type Integrity            |
+| Component       | Technology                | Role                      |
+| --------------- | ------------------------- | ------------------------- |
+| **Core App**    | Payload CMS v3            | Business Logic & Admin UI |
+| **Tenancy**     | **Payload Multi-Tenant**  | Enterprise Data Isolation |
+| **Auth**        | **Payload Auth (Better)** | Unified Identity & OAuth  |
+| **Auth Engine** | FreeRADIUS                | Hardware Communication    |
+| **Database**    | **SQLite**                | Data Persistence          |
+| **Network**     | WireGuard                 | Secure Tunneling          |
+| **Deployment**  | Docker                    | Infrastructure Delivery   |
+| **Language**    | TypeScript                | Type Integrity            |
 
 ---
 

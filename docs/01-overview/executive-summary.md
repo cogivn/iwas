@@ -93,6 +93,7 @@ The **IWAS (iCafe WiFi Access Service)** is a revenue-generating WiFi service fo
 ## Technology Stack
 
 - **Backend:** Payload CMS v3 (Next.js 15, TypeScript)
+- **Auth:** **Payload Auth (Better Auth)** for Google & Unified Identity
 - **Database:** SQLite (Current Stage), planned migration to MongoDB/PostgreSQL for large scale
 - **Network:** MikroTik RouterOS, VLAN isolation, WireGuard
 - **Integrations:** Google OAuth, Momo, ZaloPay, VNPay, VietQR

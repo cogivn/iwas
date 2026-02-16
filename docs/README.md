@@ -10,7 +10,7 @@
 
 ## 📚 Documentation Structure
 
-This documentation is organized into 12 main sections for easy navigation and maintenance.
+This documentation is organized into 13 main sections for easy navigation and maintenance.
 
 ### [01. Overview](./01-overview/)
 
@@ -98,11 +98,8 @@ Detailed functional requirements organized by domain
 Database schemas and entity relationships
 
 - [Entity Relationship Diagram](./06-data-model/erd.md)
-- [User Schemas](./06-data-model/schemas/users.md)
-- [Payment Schemas](./06-data-model/schemas/payments.md)
-- [Session Schemas](./06-data-model/schemas/sessions.md)
-- [Package Schemas](./06-data-model/schemas/packages.md)
-- [Location Schemas](./06-data-model/schemas/locations.md)
+- [User Schemas](./06-data-model/users.md)
+- [Organization Schemas](./06-data-model/organizations.md)
 - [Migration Strategy](./06-data-model/migrations/)
 
 ### [07. API](./07-api/)
@@ -117,54 +114,54 @@ API endpoints and contracts
 - [Admin API](./07-api/admin.md)
 - [Webhooks](./07-api/webhooks.md)
 
-### [08. Integrations](./08-integrations/)
+### [08. Workflows](./08-workflows/)
+
+Detailed sequence diagrams and operational flows
+
+- [Authentication Cycle](./08-workflows/authentication-cycle.md)
+- [Package Purchase Flow](./08-workflows/package-purchase-flow.md)
+- [Payment Processing](./08-workflows/payment-processing.md)
+- [Session Lifecycle](./08-workflows/session-lifecycle.md)
+- [Router Provisioning](./08-workflows/router-provisioning.md)
+
+### [09. Integrations](./09-integrations/)
 
 Third-party integrations and external APIs
 
-- [PC System API](./08-integrations/pc-system-api.md)
-- [Google OAuth](./08-integrations/google-oauth.md)
-- [Momo](./08-integrations/momo.md)
-- [ZaloPay](./08-integrations/zalopay.md)
-- [VNPay](./08-integrations/vnpay.md)
-- [VietQR](./08-integrations/vietqr.md)
-- [RADIUS](./08-integrations/radius.md)
+- [MikroTik RouterOS](./09-integrations/mikrotik-routeros.md)
+- [RADIUS Server](./09-integrations/radius-server.md)
+- [WireGuard Service](./09-integrations/wireguard-service.md)
+- [Payment Gateways](./09-integrations/payment-gateways.md)
+- [PC System API](./09-integrations/pc-system-api.md)
 
-### [09. Non-Functional Requirements](./09-non-functional/)
+### [10. Non-Functional Requirements](./10-non-functional/)
 
 Performance, security, and operational requirements
 
-- [Performance](./09-non-functional/performance.md)
-- [Availability & SLA](./09-non-functional/availability.md)
-- [Security](./09-non-functional/security.md)
-- [Scalability](./09-non-functional/scalability.md)
-- [Maintainability](./09-non-functional/maintainability.md)
+- [Performance & Scalability](./10-non-functional/performance-scalability.md)
+- [Reliability](./10-non-functional/reliability.md)
+- [Security](./10-non-functional/security.md)
 
-### [10. Roadmap](./10-roadmap/)
+### [11. Roadmap](./11-roadmap/)
 
 Product roadmap and release planning
 
-- [MVP - Phase 1](./10-roadmap/mvp-phase1.md)
-- [Phase 2](./10-roadmap/phase2.md)
-- [Phase 3](./10-roadmap/phase3.md)
-- [Backlog](./10-roadmap/backlog.md)
+- [Product Roadmap](./11-roadmap/README.md)
 
-### [11. UI/UX](./11-ui-ux/)
+### [12. UI/UX](./12-ui-ux/)
 
 User interface and experience design
 
-- [Design System](./11-ui-ux/design-system.md)
-- [Captive Portal](./11-ui-ux/captive-portal.md)
-- [Payment Wallet UI](./11-ui-ux/payment-wallet-ui.md)
-- [Admin Dashboard](./11-ui-ux/admin-dashboard.md)
+- [Design Philosophy](./12-ui-ux/README.md)
 
-### [12. Appendix](./12-appendix/)
+### [13. Appendix](./13-appendix/)
 
 Additional resources and references
 
-- [Glossary](./12-appendix/glossary.md)
-- [References](./12-appendix/references.md)
-- [Changelog](./12-appendix/changelog.md)
-- [Templates](./12-appendix/templates/)
+- [Glossary](./13-appendix/glossary.md)
+- [References](./13-appendix/references.md)
+- [Changelog](./13-appendix/changelog.md)
+- [Templates](./13-appendix/templates/)
 
 ---
 
@@ -245,8 +242,8 @@ All features are in `05-features/` organized by domain:
 
 ### By Phase
 
-- **MVP**: See [Phase 1](./10-roadmap/mvp-phase1.md)
-- **Future**: See [Phase 2](./10-roadmap/phase2.md) and [Phase 3](./10-roadmap/phase3.md)
+- **MVP**: See [Phase 1](./11-roadmap/README.md)
+- **Future**: See [Phase 2](./11-roadmap/README.md) and [Phase 3](./11-roadmap/README.md)
 
 ---
 
@@ -261,10 +258,11 @@ All features are in `05-features/` organized by domain:
 | Features       | ✅ Complete    | 2026-02-16   | Product Team |
 | Data Model     | 🚧 In Progress | 2026-02-16   | Engineering  |
 | API            | 🚧 In Progress | 2026-02-16   | Engineering  |
+| Workflows      | ✅ Complete    | 2026-02-16   | Engineering  |
 | Integrations   | 🚧 In Progress | 2026-02-16   | Engineering  |
 | Non-Functional | ✅ Complete    | 2026-02-16   | Engineering  |
 | Roadmap        | ✅ Complete    | 2026-02-16   | Product Team |
-| UI/UX          | 📝 Planned     | -            | Design Team  |
+| UI/UX          | 📝 Planned     | 2026-02-16   | Design Team  |
 | Appendix       | ✅ Complete    | 2026-02-16   | Product Team |
 
 ---

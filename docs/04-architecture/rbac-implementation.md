@@ -8,7 +8,7 @@
 
 ## 🏛️ Implementation Strategy
 
-We implement RBAC using a combination of **User Roles** (stored in MongoDB) and **Access Control Functions** (executed in Node.js). This ensures that multi-tenancy is enforced at the database query level.
+We implement RBAC using a combination of **User Roles** (stored in SQLite), the **`@payloadcms/plugin-multi-tenant`** access control logic, and **`payload-auth` (Better Auth)** for identity management. This ensures that multi-tenancy is enforced natively and automatically at the database query level, while identity is abstracted into a secure, unified library.
 
 ---
 
@@ -20,34 +20,32 @@ We define reusable access functions in `src/access/`.
 
 ```typescript
 export const isSuperAdmin = ({ req: { user } }) => {
-  return Boolean(user?.roles?.includes("super-admin"));
-};
+  return Boolean(user?.roles?.includes('super-admin'))
+}
 ```
 
-### 2. The `tenantScope` Filter (Multi-tenancy)
+### 2. Tenant Scoping (Built-in)
 
-This is the most critical function for IWAS. It ensures users only see data belonging to their Organization.
+The Multi-Tenant plugin automatically generates access control logic based on the `tenants` array in the `users` collection.
+
+Manual scoping overrides are still used for complex cross-tenant queries:
 
 ```typescript
-export const tenantScope = ({ req: { user } }) => {
+export const manualTenantScope = ({ req: { user } }) => {
   // Super Admin sees everything
-  if (user?.roles?.includes("super-admin")) return true;
+  if (user?.roles?.includes('super-admin')) return true
 
-  // Org Admin / Manager / Customer see only their Org data
-  if (user?.organization) {
-    const orgId =
-      typeof user.organization === "object"
-        ? user.organization.id
-        : user.organization;
+  // Filter by user's active tenant(s)
+  if (user?.tenants?.length > 0) {
     return {
-      organization: {
-        equals: orgId,
+      tenant: {
+        in: user.tenants.map((t) => (typeof t.tenant === 'object' ? t.tenant.id : t.tenant)),
       },
-    };
+    }
   }
 
-  return false; // No access if no org assigned
-};
+  return false // No access if no tenant assigned
+}
 ```
 
 ---

@@ -51,95 +51,66 @@
 
 ---
 
-## API Contracts
+## 🏗️ Architecture Detail
 
-### Initiate OAuth Flow
+For a deep dive into how `payload-auth` (Better Auth) is integrated into our Payload CMS instance, see the [Authentication Implementation Architecture](../../04-architecture/rbac-implementation.md).
+
+---
+
+## 🛠️ Implementation Strategy
+
+We use **`payload-auth`** (powered by Better Auth) to handle the entire OAuth lifecycle. This eliminates manual code for state management, token exchange, and session persistence.
+
+### 1. Unified Auth Handler
+
+All authentication requests are handled by a single catch-all route that interfaces with the Better Auth server.
 
 ```typescript
-GET / api / auth / google;
-// Redirects to Google OAuth consent screen
+// src/app/api/auth/[...all]/route.ts
+import { auth } from '@/lib/auth'
+import { toNextJsHandler } from 'better-auth/next-js'
+
+export const { POST, GET } = toNextJsHandler(auth)
 ```
 
-### OAuth Callback
+### 2. Client-side Initiation
+
+Clients initiate the flow using the standard Better Auth client, which redirects to the system's auth endpoint.
 
 ```typescript
-GET /api/auth/google/callback?code={authorization_code}&state={state}
+import { authClient } from '@/lib/auth-client'
 
-// Response (Success)
-HTTP 200 OK
-{
-  "success": true,
-  "user": {
-    "id": "string",
-    "email": "string",
-    "name": "string",
-    "avatar_url": "string",
-    "auth_provider": "google"
-  },
-  "session_token": "string",
-  "expires_at": "ISO8601 timestamp"
+const signIn = async () => {
+  const { data, error } = await authClient.signIn.social({
+    provider: 'google',
+    callbackURL: '/dashboard',
+  })
 }
 ```
 
 ---
 
-## Implementation
+## 📡 API Contracts
 
-```typescript
-@Controller("auth")
-export class AuthController {
-  @Get("google")
-  googleAuth(@Res() res: Response) {
-    const state = generateSecureState();
-    const authUrl = this.googleOAuthService.getAuthUrl(state);
+The following endpoints are automatically exposed and managed by `payload-auth`:
 
-    // Store state in Redis (5 min TTL)
-    await this.redis.set(`oauth_state:${state}`, "1", "EX", 300);
+| Method | Endpoint                    | Description                        |
+| ------ | --------------------------- | ---------------------------------- |
+| `GET`  | `/api/auth/signin/google`   | Redirects to Google Consent Screen |
+| `GET`  | `/api/auth/callback/google` | Handles OAuth callback & linking   |
+| `GET`  | `/api/auth/get-session`     | Retrieves current user session     |
+| `POST` | `/api/auth/signout`         | Terminates session                 |
 
-    res.redirect(authUrl);
-  }
+---
 
-  @Get("google/callback")
-  async googleCallback(@Query() query: GoogleCallbackDto) {
-    // 1. Validate state (CSRF protection)
-    const stateValid = await this.redis.get(`oauth_state:${query.state}`);
-    if (!stateValid) {
-      throw new UnauthorizedException("Invalid state parameter");
-    }
+## 🔐 Security Built-in
 
-    // 2. Exchange code for tokens
-    const tokens = await this.googleOAuthService.getTokens(query.code);
+By leveraging **Better Auth**, we get standard security features out of the box:
 
-    // 3. Fetch user profile
-    const profile = await this.googleOAuthService.getUserProfile(
-      tokens.access_token,
-    );
-
-    // 4. Create or update user
-    const user = await this.userService.createOrUpdate({
-      google_id: profile.id,
-      email: profile.email,
-      name: profile.name,
-      avatar_url: profile.picture,
-      auth_provider: "google",
-    });
-
-    // 5. Create session
-    const session = await this.sessionService.create({
-      user_id: user.id,
-      location_id: query.location_id,
-      device_mac: query.device_mac,
-    });
-
-    return {
-      success: true,
-      user,
-      session_token: session.session_token,
-      expires_at: session.expires_at,
-    };
-  }
-}
-```
+- ✅ **CSRF Protection**: Automatic state/nonce management.
+- ✅ **PKCE Support**: Enhanced security for mobile/one-page apps.
+- ✅ **Session Management**: Secure, database-backed user sessions.
+- ✅ **Cross-Subdomain Auth**: Support for multi-tenant white-labeling.
 
 ---
 
@@ -147,16 +118,16 @@ export class AuthController {
 
 ```typescript
 interface WiFiUser {
-  id: string;
-  google_id?: string;
-  pc_user_id?: string;
-  email: string;
-  name: string;
-  avatar_url?: string;
-  auth_provider: "google" | "pc_account";
-  google_refresh_token?: string; // Encrypted
-  created_at: Date;
-  updated_at: Date;
+  id: string
+  google_id?: string
+  pc_user_id?: string
+  email: string
+  name: string
+  avatar_url?: string
+  auth_provider: 'google' | 'pc_account'
+  google_refresh_token?: string // Encrypted
+  created_at: Date
+  updated_at: Date
 }
 ```
 
@@ -176,32 +147,32 @@ interface WiFiUser {
 ## Testing
 
 ```typescript
-describe("Google OAuth Login", () => {
-  it("should complete OAuth flow successfully", async () => {
+describe('Google OAuth Login', () => {
+  it('should complete OAuth flow successfully', async () => {
     // Mock Google OAuth responses
     mockGoogleOAuth.getTokens.mockResolvedValue({
-      access_token: "access_token_123",
-      refresh_token: "refresh_token_456",
-    });
+      access_token: 'access_token_123',
+      refresh_token: 'refresh_token_456',
+    })
 
     mockGoogleOAuth.getUserProfile.mockResolvedValue({
-      id: "google_user_123",
-      email: "user@gmail.com",
-      name: "Test User",
-      picture: "https://avatar.url",
-    });
+      id: 'google_user_123',
+      email: 'user@gmail.com',
+      name: 'Test User',
+      picture: 'https://avatar.url',
+    })
 
     const result = await authController.googleCallback({
-      code: "auth_code_123",
-      state: "valid_state",
-      location_id: "loc_001",
-      device_mac: "00:11:22:33:44:55",
-    });
+      code: 'auth_code_123',
+      state: 'valid_state',
+      location_id: 'loc_001',
+      device_mac: '00:11:22:33:44:55',
+    })
 
-    expect(result.success).toBe(true);
-    expect(result.user.email).toBe("user@gmail.com");
-  });
-});
+    expect(result.success).toBe(true)
+    expect(result.user.email).toBe('user@gmail.com')
+  })
+})
 ```
 
 ---

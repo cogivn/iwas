@@ -1,25 +1,26 @@
 # Organizations Collection
 
-**Collection ID:** `organizations`  
-**Description:** Represents an Enterprise Tenant (e.g., a gaming center chain).
+**Collection ID:** `organizations` (Acts as the `Tenants` collection for the Multi-Tenant plugin)  
+**Description:** Represents an Enterprise Tenant (e.g., a gaming center chain). Powered by `@payloadcms/plugin-multi-tenant`.
 
 ---
 
 ## 📄 Schema Definition
 
-| Field                   | Type       | Required | Description                               |
-| ----------------------- | ---------- | -------- | ----------------------------------------- |
-| `name`                  | `string`   | ✅       | Full name of the organization.            |
-| `slug`                  | `string`   | ✅       | URL-friendly identifier (unique).         |
-| `logo`                  | `upload`   | ✅       | Reference to the `media` collection.      |
-| `domain`                | `string`   | ❌       | Custom domain for the captive portal.     |
-| `status`                | `select`   | ✅       | `active`, `suspended`, `trial`.           |
-| `quota`                 | `group`    | ✅       | Multi-branch limits.                      |
-| `quota.maxLocations`    | `number`   | ✅       | Max branches allowed.                     |
-| `quota.maxUsers`        | `number`   | ✅       | Max concurrent users across all branches. |
-| `branding`              | `group`    | ❌       | UI customization tokens.                  |
-| `branding.primaryColor` | `string`   | ❌       | Hex color code.                           |
-| `branding.customCss`    | `textarea` | ❌       | Injected CSS for portal.                  |
+| Field                   | Type       | Required | Description                                 |
+| ----------------------- | ---------- | -------- | ------------------------------------------- |
+| `name`                  | `string`   | ✅       | Full name of the organization.              |
+| `slug`                  | `string`   | ✅       | URL-friendly identifier (unique).           |
+| `logo`                  | `upload`   | ✅       | Reference to the `media` collection.        |
+| `domains`               | `array`    | ❌       | List of domains/subdomains for this tenant. |
+| `domains.domain`        | `text`     | ✅       | The hostname (e.g., `wifi.brand.com`).      |
+| `status`                | `select`   | ✅       | `active`, `suspended`, `trial`.             |
+| `quota`                 | `group`    | ✅       | Multi-branch limits.                        |
+| `quota.maxLocations`    | `number`   | ✅       | Max branches allowed.                       |
+| `quota.maxUsers`        | `number`   | ✅       | Max concurrent users across all branches.   |
+| `branding`              | `group`    | ❌       | UI customization tokens.                    |
+| `branding.primaryColor` | `string`   | ❌       | Hex color code.                             |
+| `branding.customCss`    | `textarea` | ❌       | Injected CSS for portal.                    |
 
 ---
 
@@ -27,23 +28,25 @@
 
 ```typescript
 export type Organization = {
-  id: string;
-  name: string;
-  slug: string;
-  logo: string; // Media ID
-  domain?: string;
-  status: "active" | "suspended" | "trial";
+  id: string
+  name: string
+  slug: string
+  logo: string // Media ID
+  domains?: {
+    domain: string
+  }[]
+  status: 'active' | 'suspended' | 'trial'
   quota: {
-    maxLocations: number;
-    maxUsers: number;
-  };
+    maxLocations: number
+    maxUsers: number
+  }
   branding?: {
-    primaryColor?: string;
-    customCss?: string;
-  };
-  createdAt: string;
-  updatedAt: string;
-};
+    primaryColor?: string
+    customCss?: string
+  }
+  createdAt: string
+  updatedAt: string
+}
 ```
 
 ---

@@ -38,11 +38,12 @@ docs/
 │   └── admin/
 ├── 06-data-model/               # Database schemas
 ├── 07-api/                      # API documentation
-├── 08-integrations/             # Third-party integrations
-├── 09-non-functional/           # NFRs (performance, security, etc.)
-├── 10-roadmap/                  # Product roadmap
-├── 11-ui-ux/                    # Design guidelines
-└── 12-appendix/                 # Glossary, templates, changelog
+├── 08-workflows/                # Detailed sequence diagrams
+├── 09-integrations/             # Third-party integrations
+├── 10-non-functional/           # NFRs (performance, security, etc.)
+├── 11-roadmap/                  # Product roadmap
+├── 12-ui-ux/                    # Design guidelines
+└── 13-appendix/                 # Glossary, templates, changelog
     └── templates/               # Document templates
 ```
 
@@ -137,16 +138,16 @@ docs/
 
 - **For features:** Search in `05-features/` by domain
 - **For APIs:** Search in `07-api/`
-- **For data:** Search in `06-data-model/schemas/`
-- **For terms:** Check `12-appendix/glossary.md`
+- **For data:** Search in `06-data-model/`
+- **For terms:** Check `13-appendix/glossary.md`
 
 **When creating documents:**
 
-1. Use appropriate template from `12-appendix/templates/`
+1. Use appropriate template from `13-appendix/templates/`
 2. Follow existing document structure
 3. Add cross-references to related docs
 4. Update section README and main README
-5. Update changelog
+5. Update changelog (in section 13)
 
 ---
 
@@ -174,20 +175,24 @@ All features are in `05-features/` organized by domain:
 
 ### By Phase
 
-- **MVP**: See [Phase 1](./10-roadmap/mvp-phase1.md)
-- **Future**: See [Phase 2](./10-roadmap/phase2.md) and [Phase 3](./10-roadmap/phase3.md)
-
-### By API
+- **MVP**: See [Phase 1](./11-roadmap/README.md)
+- **Future**: See [Phase 2](./11-roadmap/README.md) and [Phase 3](./11-roadmap/README.md)
 
 All APIs are in `07-api/`:
 
 - Authentication, Payment, Wallet, Package, Session, Admin, Webhooks
 
+### By Workflow
+
+All workflows are in `08-workflows/`:
+
+- Auth Cycle, Purchase Flow, Payment Processing, Session Lifecycle, Router Provisioning
+
 ### By Integration
 
-All integrations are in `08-integrations/`:
+All integrations are in `09-integrations/`:
 
-- PC System, Google OAuth, Momo, ZaloPay, VNPay, VietQR, RADIUS
+- Mikrotik, RADIUS, WireGuard, Payment Gateways, PC System API
 
 ---
 
@@ -198,7 +203,7 @@ All integrations are in `08-integrations/`:
 1. **Create Feature Document**
 
    ```bash
-   cp docs/12-appendix/templates/feature-template.md \
+   cp docs/13-appendix/templates/feature-template.md \
       docs/05-features/[domain]/[feature-name].md
    ```
 
@@ -216,14 +221,14 @@ All integrations are in `08-integrations/`:
    - Add link to main README (`docs/README.md`)
 
 4. **Update Changelog**
-   - Add entry to `12-appendix/changelog.md`
+   - Add entry to `13-appendix/changelog.md`
 
 ### Adding a New API
 
 1. **Create API Document**
 
    ```bash
-   cp docs/12-appendix/templates/api-template.md \
+   cp docs/13-appendix/templates/api-template.md \
       docs/07-api/[api-name].md
    ```
 
@@ -295,7 +300,7 @@ Always specify language:
 ````markdown
 ```typescript
 interface Example {
-  field: string;
+  field: string
 }
 ```
 ````
@@ -346,10 +351,10 @@ Use for structured data:
 
 ## 📚 Useful Resources
 
-- [Glossary](./12-appendix/glossary.md) - Terms and acronyms
-- [Feature Template](./12-appendix/templates/feature-template.md)
-- [API Template](./12-appendix/templates/api-template.md)
-- [Changelog](./12-appendix/changelog.md)
+- [Glossary](./13-appendix/glossary.md) - Terms and acronyms
+- [Feature Template](./13-appendix/templates/feature-template.md)
+- [API Template](./13-appendix/templates/api-template.md)
+- [Changelog](./13-appendix/changelog.md)
 
 ---
 

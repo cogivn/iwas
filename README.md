@@ -14,8 +14,9 @@ The system provides a cloud-based authentication and payment solution for iCafes
 
 ## 🏗️ Technology Stack
 
-- **Backend/Admin**: [Payload CMS v3](https://payloadcms.com/) (Next.js 15, TypeScript)
-- **Authentication**: [FreeRADIUS 3.x](https://freeradius.org/)
+- **Backend/Admin**: [Payload CMS v3](https://payloadcms.com/) (Next.js 15, TypeScript) with **Multi-Tenant Plugin** and **Payload Auth (Better Auth)**.
+- **Auth Engine (RADIUS)**: [FreeRADIUS 3.x](https://freeradius.org/) for hardware enforcement.
+- **Identity**: Google OAuth via Payload Auth.
 - **Database**: **SQLite** (Current Stage)
 - **Networking**: [WireGuard](https://www.wireguard.com/) for secure tunneling to local sites.
 - **Infrastructure**: Docker & Docker Compose.
@@ -39,7 +40,8 @@ Detailed documentation is available in the [docs/](./docs/) directory:
 - [System Architecture](./docs/04-architecture/system-architecture.md)
 - [Feature Specifications](./docs/05-features/)
 - [API Contracts](./docs/07-api/)
-- [Integration Guides](./docs/08-integrations/)
+- [Workflow Diagrams](./docs/08-workflows/)
+- [Integration Guides](./docs/09-integrations/)
 
 ## 🛠️ Development
 

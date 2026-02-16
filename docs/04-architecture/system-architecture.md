@@ -38,6 +38,7 @@ graph TD
 ### 1. Payload CMS (The Controller)
 
 - **Role:** Orchestrates the entire system.
+- **Tenancy:** Uses **`@payloadcms/plugin-multi-tenant`** to isolate data between different iCafe enterprises.
 - **Outbound:** Sends **CoA (Change of Authorization)** requests to FreeRADIUS via internal Docker network when an Admin terminates a session.
 - **Inbound:** Receives **Payment Webhooks** (MoMo/VNPay) and **iCafe-Sync** events (Phase 2).
 - **Database:** Writes WiFi credentials and session rules into **SQLite**.
@@ -46,7 +47,7 @@ graph TD
 
 - **Role:** Directly interacts with the hardware.
 - **Outbound:** Sends Auth-Accept/Reject and Interim-Update ACK to MikroTik routers through the WireGuard tunnel.
-- **Database:** Reads credentials from the shared MongoDB instance (using `rlm_mongodb` or `rlm_rest`).
+- **Database:** Reads credentials from the shared **SQLite** instance (or synced cache).
 - **Internal:** Listens for CoA triggers from Payload on port `3799`.
 
 ### 3. WireGuard (The Secure Bridge)
@@ -54,11 +55,11 @@ graph TD
 - **Role:** Acts as the network gateway for remote routers.
 - **Routing:** Every MikroTik is assigned a static IP (e.g., `10.0.0.2`). All UDP 1812/1813 traffic is routed through this tunnel, bypassing local firewalls and CGNAT.
 
-### 4. MongoDB (The Shared State)
+### 4. SQLite (The Shared State)
 
 - **Role:** Single source of truth.
-- **Schema:** Managed primarily by **Payload CMS Collections**.
-- **Shared Access:** Both Payload and FreeRADIUS access the same database to ensure zero-latency synchronization of sessions.
+- **Tenancy Scoping:** Database rows are logically separated by `tenant` IDs managed by the Payload plugin.
+- **Shared Access:** Both Payload and FreeRADIUS (indirectly or via sidecar) access the same database state to ensure zero-latency synchronization of sessions.
 
 ---
 

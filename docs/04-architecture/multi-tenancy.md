@@ -14,22 +14,36 @@ IWAS is designed as a **Multi-tenant Platform**, allowing it to host multiple in
 
 ## 🏗️ Architecture for Enterprises
 
-### 1. Data Segregation
+### 1. Unified Tenancy Management
 
-We use a **Shared Database, Isolated Data** model.
+We leverage the official **`@payloadcms/plugin-multi-tenant`** to handle complex enterprise requirements.
 
-- **Organizations Collection:** Stores Branding assets (Logo, Favicon), Custom CSS tokens (colors, border-radius), and Domain settings.
-- **Ownership:** Every `Location`, `Package`, `User`, and `Session` has an `organization` field (Relationship) to ensure data strictly belongs to one tenant.
+- **Tenants Collection:** Previously mapped as `organizations`, this collection is the root of the tenancy tree. It stores:
+  - Branding assets (Logo, Favicon).
+  - Custom CSS tokens (colors, border-radius).
+  - Domain / Subdomain mappings.
+- **Automatic Scoping:** The plugin automatically injects a `tenant` field into all scoped collections (`Locations`, `Packages`, `Users`, `Sessions`).
+- **Data Isolation:** All database queries are automatically filtered to the active tenant based on the request's domain or the logged-in user's relationship.
+- **Cross-Tenant Access:** Super-admins can access all data, while Organization admins are restricted to their assigned tenant(s).
 
 ### 2. Branding & Custom Domain Support
 
-The Frontend (Next.js) uses a **Theme Provider** that loads configuration dynamically based on the request metadata.
+The system uses domain-based tenant detection to serve the correct branding and data isolation for each request.
 
-| Strategy             | Mechanism                                                                                      |
-| -------------------- | ---------------------------------------------------------------------------------------------- |
-| **Subdomain/Domain** | `wifi.brand-a.com` vs `wifi.brand-b.vn`. The system maps the hostname to the `OrganizationID`. |
-| **Asset Injection**  | Logo and font-family are injected into the Captive Portal head at runtime from Payload CMS.    |
-| **White-labeling**   | Ability to hide "Powered by IWAS" for Enterprise tier customers.                               |
+| Strategy             | Mechanism                                                                                               |
+| -------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Domain Detection** | Managed by `@payloadcms/plugin-multi-tenant` using the `useDomains: true` configuration.                |
+| **Mapping**          | The system matches the incoming `Host` header to the `domains` array in the `organizations` collection. |
+| **Subdomains**       | Supports wildcard or specific subdomains (e.g., `tenant1.iwas.vn`, `portal.chain-a.com`).               |
+| **Asset Injection**  | Logo and theme tokens are fetched based on the detected tenant and injected into the portal.            |
+
+#### How Domain Resolution Works
+
+1.  **Incoming Request:** A user hits `wifi.brand-a.com`.
+2.  **Plugin Middleware:** Payload checks the `Host` header against the `organizations` collection's `domains` field.
+3.  **Tenant Context:** Once a match is found, the plugin sets the `req.tenant` context.
+4.  **Automatic Filtering:** All subsequent database operations (e.g., fetching WiFi packages) are automatically scoped to that Tenant ID.
+5.  **Branding:** The Next.js frontend reads the tenant's branding configuration to render the custom UI.
 
 ---
 
