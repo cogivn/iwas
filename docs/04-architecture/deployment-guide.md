@@ -46,20 +46,18 @@ sudo apt install -y wireguard-tools
 Below is the conceptual structure of our deployment orchestrator.
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   # 🧠 BRAIN: Payload CMS (Next.js 15)
   payload-cms:
     image: iwas/payload-cms:latest
     environment:
-      - DATABASE_URI=mongodb://mongodb:27017/iwas
+      - DATABASE_URI=file:./data/p.db
       - PAYLOAD_SECRET=${PAYLOAD_SECRET}
       - RADIUS_SERVER_IP=freeradius
-    depends_on:
-      - mongodb
     ports:
-      - "3000:3000"
+      - '3000:3000'
 
   # 📡 ENFORCER: FreeRADIUS
   freeradius:
@@ -67,9 +65,9 @@ services:
     volumes:
       - ./services/freeradius/config:/etc/freeradius
     ports:
-      - "1812:1812/udp"
-      - "1813:1813/udp"
-      - "3799:3799/udp"
+      - '1812:1812/udp'
+      - '1813:1813/udp'
+      - '3799:3799/udp'
 
   # 🛡️ BRIDGE: WireGuard VPN
   wireguard:
@@ -83,13 +81,7 @@ services:
       - TZ=Asia/Ho_Chi_Minh
       - SERVERURL=vpn.iwas.com
     ports:
-      - "51820:51820/udp"
-
-  # 🧊 DATA: MongoDB
-  mongodb:
-    image: mongo:latest
-    volumes:
-      - ./data/db:/data/db
+      - '51820:51820/udp'
 ```
 
 ---
@@ -129,8 +121,8 @@ docker compose up -d
 
 ## 📈 Scalability Considerations
 
-1. **Database Scaling:** When user count exceeds 100k, migrate from Docker MongoDB to **MongoDB Atlas (Sharded Cluster)**.
-2. **Horizontal Scaling:** Payload CMS is stateless (except for local storage, which should be moved to S3). You can run multiple instances of the `payload-cms` container behind a Load Balancer.
+1. **Database Scaling:** When user count or transaction volume expands, migrate from SQLite to **PostgreSQL** or **MongoDB Atlas**.
+2. **Horizontal Scaling:** Payload CMS is stateless (except for local storage, which should be moved to S3). You can run multiple instances of the `payload-cms` container behind a Load Balancer after migrating to a shared database.
 3. **RADIUS Clustering:** For high-density locations, deploy multiple FreeRADIUS instances with a shared Session Cache in Redis.
 
 ---

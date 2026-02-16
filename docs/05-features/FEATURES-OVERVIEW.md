@@ -17,12 +17,12 @@ This section contains all functional requirements (FRs) for IWAS, organized by d
 
 **Purpose:** User authentication and authorization
 
-| ID    | Feature                          | Priority      | Status        |
-| ----- | -------------------------------- | ------------- | ------------- |
-| FR-01 | PC Account Login                 | P0 (Critical) | 📝 Documented |
-| FR-02 | QR Code Quick Login              | P2 (Phase 2)  | 📝 Documented |
-| FR-03 | Google OAuth Login               | P0 (Critical) | 📝 Documented |
-| FR-04 | Role-Based Access Control (RBAC) | P0 (Critical) | 📝 Documented |
+| ID    | Feature                          | Priority      | Status        | Phase   |
+| ----- | -------------------------------- | ------------- | ------------- | ------- |
+| FR-01 | iCafe Account Login              | P2 (Medium)   | 📝 Documented | Phase 2 |
+| FR-02 | QR Code Quick Login              | P2 (Medium)   | 📝 Documented | Phase 2 |
+| FR-03 | Google OAuth Login               | P0 (Critical) | 📝 Documented | Phase 1 |
+| FR-04 | Role-Based Access Control (RBAC) | P0 (Critical) | 📝 Documented | Phase 1 |
 
 **Key Capabilities:**
 
@@ -37,14 +37,14 @@ This section contains all functional requirements (FRs) for IWAS, organized by d
 
 **Purpose:** Payment processing and wallet management
 
-| ID    | Feature                                 | Priority      | Status        |
-| ----- | --------------------------------------- | ------------- | ------------- |
-| FR-05 | Multi-Payment Gateway Support           | P0 (Critical) | 📝 Documented |
-| FR-06 | PC Balance Payment                      | P0 (Critical) | 📝 Documented |
-| FR-07 | E-Wallet Payment (Momo, ZaloPay, VNPay) | P0 (Critical) | 📝 Documented |
-| FR-08 | Bank QR Payment (VietQR)                | P0 (Critical) | 📝 Documented |
-| FR-09 | Transaction Management                  | P0 (Critical) | 📝 Documented |
-| FR-10 | Payment Wallet Management               | P0 (Critical) | 📝 Documented |
+| ID    | Feature                                 | Priority      | Status        | Phase   |
+| ----- | --------------------------------------- | ------------- | ------------- | ------- |
+| FR-05 | Multi-Payment Gateway Support           | P0 (Critical) | 📝 Documented | Phase 1 |
+| FR-06 | iCafe Balance Payment                   | P2 (Medium)   | 📝 Documented | Phase 2 |
+| FR-07 | E-Wallet Payment (Momo, ZaloPay, VNPay) | P0 (Critical) | 📝 Documented | Phase 1 |
+| FR-08 | Bank QR Payment (VietQR)                | P0 (Critical) | 📝 Documented | Phase 1 |
+| FR-09 | Transaction Management                  | P0 (Critical) | 📝 Documented | Phase 1 |
+| FR-10 | Payment Wallet Management               | P0 (Critical) | 📝 Documented | Phase 1 |
 
 **Key Capabilities:**
 
@@ -78,12 +78,12 @@ This section contains all functional requirements (FRs) for IWAS, organized by d
 
 **Purpose:** WiFi session lifecycle management
 
-| ID    | Feature                      | Priority      | Status        |
-| ----- | ---------------------------- | ------------- | ------------- |
-| FR-13 | Device Binding               | P0 (Critical) | 📝 Documented |
-| FR-14 | Session Lifecycle Management | P0 (Critical) | 📝 Documented |
-| FR-15 | PC Logout Synchronization    | P1 (High)     | 📝 Documented |
-| FR-16 | Concurrent Session Limits    | P1 (High)     | 📝 Documented |
+| ID    | Feature                      | Priority      | Status        | Phase   |
+| ----- | ---------------------------- | ------------- | ------------- | ------- |
+| FR-13 | Device Binding               | P0 (Critical) | 📝 Documented | Phase 1 |
+| FR-14 | Session Lifecycle Management | P0 (Critical) | 📝 Documented | Phase 1 |
+| FR-15 | iCafe Logout Synchronization | P2 (Medium)   | 📝 Documented | Phase 2 |
+| FR-16 | Concurrent Session Limits    | P1 (High)     | 📝 Documented | Phase 1 |
 
 **Key Capabilities:**
 
@@ -156,19 +156,18 @@ This section contains all functional requirements (FRs) for IWAS, organized by d
 
 **Phase 1 (MVP) - Month 1-2:**
 
-- All P0 features (20 features)
-- Authentication: FR-01, FR-03, FR-04
-- Payments: FR-05 through FR-10
+- Authentication: FR-03, FR-04
+- Payments: FR-05, FR-07, FR-08, FR-09, FR-10
 - Packages: FR-11, FR-12
-- Sessions: FR-13, FR-14
+- Sessions: FR-13, FR-14, FR-16
 - Network: FR-17, FR-18
 - Admin: FR-20, FR-21, FR-22
 
 **Phase 2 - Month 3-4:**
 
-- All P1 features (4 features)
-- Authentication: FR-02 (QR Code)
-- Sessions: FR-15, FR-16
+- Authentication: FR-01 (iCafe Account), FR-02 (QR Code)
+- Payments: FR-06 (iCafe Balance)
+- Sessions: FR-15 (iCafe Logout Sync)
 - Network: FR-19
 - Admin: FR-23, FR-24
 

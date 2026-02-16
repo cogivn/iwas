@@ -1,21 +1,22 @@
 # IWAS – iCafe WiFi Access Service
 
-IWAS is a specialized solution designed to provide seamless WiFi access for iCafe users. It integrates with existing iCafe management systems to allow users to use their existing PC accounts to access high-speed WiFi, or purchase dedicated packages via various payment gateways.
+IWAS is a specialized solution designed to provide seamless WiFi access for iCafe users. It allows users to purchase dedicated WiFi packages via various payment gateways and access high-speed internet on their personal devices.
 
 ## 🚀 Overview
 
-The system bridges the gap between local iCafe management software and cloud-based authentication, providing:
+The system provides a cloud-based authentication and payment solution for iCafes:
 
-- **PC Account Integration**: Login to WiFi using existing iCafe credentials.
+- **Easy Authentication**: Login via Google OAuth for quick access.
 - **Multi-tenant Management**: Manage multiple physical locations from a single dashboard.
 - **Flexible Payments**: Support for Momo, ZaloPay, VNPay, and VietQR.
 - **Session Control**: Real-time monitoring and bandwidth enforcement via FreeRADIUS.
+- **iCafe Integration (Future)**: Planned integration with existing PC account systems.
 
 ## 🏗️ Technology Stack
 
 - **Backend/Admin**: [Payload CMS v3](https://payloadcms.com/) (Next.js 15, TypeScript)
 - **Authentication**: [FreeRADIUS 3.x](https://freeradius.org/)
-- **Database**: [MongoDB](https://www.mongodb.com/)
+- **Database**: **SQLite** (Current Stage)
 - **Networking**: [WireGuard](https://www.wireguard.com/) for secure tunneling to local sites.
 - **Infrastructure**: Docker & Docker Compose.
 

@@ -8,7 +8,7 @@
 
 ## Overview
 
-The **IWAS (iCafe WiFi Access Service)** is a revenue-generating WiFi service that integrates seamlessly with existing iCafe PC rental systems. It enables customers to purchase WiFi access for their personal devices using multiple payment methods including PC account balance, e-wallets, and bank transfers.
+The **IWAS (iCafe WiFi Access Service)** is a revenue-generating WiFi service for iCafe environments. It enables customers to purchase WiFi access for their personal devices using multiple payment methods including e-wallets and bank transfers, with future support for iCafe PC account balances.
 
 ## Key Value Propositions
 
@@ -36,20 +36,20 @@ The **IWAS (iCafe WiFi Access Service)** is a revenue-generating WiFi service th
 ## Core Capabilities
 
 1. **Multi-Authentication**
-   - Google OAuth for guest users
-   - PC account integration for existing customers
+   - Google OAuth for guest users (P0 - Priority)
+   - iCafe account integration (Phase 2)
    - QR code quick login (Phase 2)
 
 2. **Payment Wallet System**
-   - Link multiple payment methods (PC balance, e-wallets, bank accounts)
+   - Link multiple payment methods (e-wallets, bank accounts, future PC balance)
    - Set default payment for one-click purchases
    - Secure credential storage with encryption
    - Cross-location payment support
 
 3. **Flexible Payment Options**
-   - PC Account Balance (with balance verification)
    - E-Wallets (Momo, ZaloPay, VNPay)
    - Bank QR Code (VietQR standard)
+   - iCafe Account Balance (Phase 2)
 
 4. **Package Management**
    - Multi-tier WiFi packages with bandwidth controls
@@ -59,8 +59,8 @@ The **IWAS (iCafe WiFi Access Service)** is a revenue-generating WiFi service th
 5. **Session Management**
    - Device binding and tracking
    - Automatic session termination
-   - PC logout synchronization
    - Concurrent session limits
+   - iCafe logout synchronization (Phase 2)
 
 6. **Admin Dashboard**
    - Role-based access control (RBAC)
@@ -92,9 +92,9 @@ The **IWAS (iCafe WiFi Access Service)** is a revenue-generating WiFi service th
 
 ## Technology Stack
 
-- **Backend:** NestJS (TypeScript), PostgreSQL, Redis, FreeRADIUS
-- **Frontend:** Next.js 14+ (TypeScript, React)
-- **Network:** MikroTik RouterOS, VLAN isolation
+- **Backend:** Payload CMS v3 (Next.js 15, TypeScript)
+- **Database:** SQLite (Current Stage), planned migration to MongoDB/PostgreSQL for large scale
+- **Network:** MikroTik RouterOS, VLAN isolation, WireGuard
 - **Integrations:** Google OAuth, Momo, ZaloPay, VNPay, VietQR
 
 ## Success Metrics
@@ -109,14 +109,16 @@ The **IWAS (iCafe WiFi Access Service)** is a revenue-generating WiFi service th
 
 ### Phase 1 (MVP) - Month 1-2
 
-- Google OAuth + PC account authentication
-- Payment Wallet with PC balance, e-wallet, bank QR
+- Google OAuth authentication
+- Payment Wallet with e-wallet, bank QR
 - Basic package management
 - Session lifecycle management
 - Admin dashboard (basic)
 
 ### Phase 2 - Month 3-4
 
+- iCafe account authentication & balance payment
+- iCafe logout synchronization
 - QR code quick login
 - Advanced analytics
 - Multi-location reporting

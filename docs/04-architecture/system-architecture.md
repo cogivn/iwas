@@ -16,8 +16,8 @@ The IWAS system is deployed as a suite of microservices managed by **Docker Comp
 graph TD
     subgraph "Cloud Server (Public IP: X.X.X.X)"
         subgraph "Docker Network (Internal: 172.x.x.x)"
-            P[Payload CMS v3] <--> M[(MongoDB)]
-            R[FreeRADIUS] <--> M
+            P[Payload CMS v3] <--> S[(SQLite)]
+            R[FreeRADIUS] <--> S
             WG[WireGuard VPN]
         end
     end
@@ -39,8 +39,8 @@ graph TD
 
 - **Role:** Orchestrates the entire system.
 - **Outbound:** Sends **CoA (Change of Authorization)** requests to FreeRADIUS via internal Docker network when an Admin terminates a session.
-- **Inbound:** Receives **Payment Webhooks** (MoMo/VNPay) and **PC-Sync** events.
-- **Database:** Writes WiFi credentials and session rules into MongoDB.
+- **Inbound:** Receives **Payment Webhooks** (MoMo/VNPay) and **iCafe-Sync** events (Phase 2).
+- **Database:** Writes WiFi credentials and session rules into **SQLite**.
 
 ### 2. FreeRADIUS (The Gatekeeper)
 
@@ -101,7 +101,7 @@ To ensure the platform's reliability across hundreds of branches, we implement a
 │   ├── /freeradius          # Config, Dictionary, and Mods
 │   └── /wireguard           # VPN configs & keys
 └── /data
-    └── /mongodb             # Persistent database volume
+    └── /db                  # SQLite database file or persistent volume
 ```
 
 ---

@@ -24,7 +24,7 @@ Payload CMS acts as the central intelligence of IWAS, handling business logic, a
 
 - **Framework:** **Next.js 15 (App Router)**.
 - **Language:** **TypeScript**.
-- **Database:** **MongoDB Atlas** (Managed) or MongoDB Community (Docker).
+- **Database:** **SQLite** (Current Stage). Easy for local development and initial deployment.
 - **Core Responsibilities:**
   - Multi-tenant Access Control (RBAC).
   - Package & Pricing Management.
@@ -71,7 +71,7 @@ A dedicated RADIUS service handles the low-level networking protocols and enforc
 | --------------- | -------------- | ------------------------- |
 | **Core App**    | Payload CMS v3 | Business Logic & Admin UI |
 | **Auth Engine** | FreeRADIUS     | Hardware Communication    |
-| **Database**    | MongoDB        | Data Persistence          |
+| **Database**    | **SQLite**     | Data Persistence          |
 | **Network**     | WireGuard      | Secure Tunneling          |
 | **Deployment**  | Docker         | Infrastructure Delivery   |
 | **Language**    | TypeScript     | Type Integrity            |
