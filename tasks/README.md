@@ -1,42 +1,140 @@
-# IWAS Development Tasks
+# IWAS Implementation Tasks
 
-This folder contains the breakdown of tasks, phases, and implementation plans for the IWAS platform.
-
----
-
-## � Overall Project Status
-
-| Phase       | Description           | Progress                                        | Status         | Focus                    |
-| :---------- | :-------------------- | :---------------------------------------------- | :------------- | :----------------------- |
-| **Phase 1** | Foundation & Core MVP | ![Progress](https://geps.dev/progress/90) `90%` | 🟢 In Progress | Data Model, RBAC, VietQR |
-| **Phase 2** | Advanced Integrations | ![Progress](https://geps.dev/progress/0) `0%`   | ⚪ Planned     | iCafe Sync, Multi-Wallet |
-| **Phase 3** | Scale & Optimization  | ![Progress](https://geps.dev/progress/0) `0%`   | ⚪ Planned     | Analytics, Performance   |
+**Project:** IWAS - iCafe WiFi Access Service  
+**Last Updated:** 2026-02-17
 
 ---
 
-## 🏗 Project Structure
+## 📋 Overview
 
-- [**Phase 1: Foundation**](./phase-1.md) (Current Focus)
-- [**Phase 2: Integrations**](./phase-2.md)
-- [**Phase 3: Scale & Polish**](./phase-3.md)
+Folder này chứa tất cả implementation tasks được tổ chức theo feature/phase. Mỗi task folder bao gồm:
 
-## 🚀 Execution Strategy
-
-1.  **Foundation First**: Prioritize data models and access control (Payload Collections, Hooks).
-2.  **Low Dependency**: Implement tasks that don't block others (UI components, static data).
-3.  **Iterative Delivery**: Build, test, and verify each milestone before moving to integrations.
-
-## 📋 Ongoing Tasks (Phase 1)
-
-- [x] Analyze documentation and system requirements.
-- [x] Core Data Models (Refining Collections: Users, Locations, Packages).
-- [x] Initial Collection Implementation (Sessions, Payments).
-- [x] Basic Access Control (RBAC Foundation).
-- [x] Develop VietQR Payment Hook & Utility.
-- [x] Build Captive Portal Landing Page & Design System.
-- [x] RADIUS API Bridge (Auth Check & CoA).
-- [ ] Implement Google OAuth (Pending Credentials).
+- **Implementation Plan**: Chi tiết kỹ thuật, architecture, code examples
+- **Checklist**: Task breakdown với acceptance criteria và progress tracking
+- **README**: Overview và quick start guide
 
 ---
 
-_Last Updated: February 16, 2026_
+## 📁 Task Structure
+
+```
+tasks/
+├── README.md                    # This file
+├── phase-1.md                   # Phase 1 overview
+├── phase-2.md                   # Phase 2 overview
+├── phase-3.md                   # Phase 3 overview
+└── rbac/                        # RBAC Implementation (FR-04)
+    ├── README.md                # Task overview
+    ├── implementation-plan.md   # Technical details
+    └── checklist.md             # Task tracking
+```
+
+---
+
+## 🎯 Active Tasks
+
+### Phase 1: Foundation & Core Models
+
+| Task                               | Feature ID | Priority | Status   | Progress  |
+| ---------------------------------- | ---------- | -------- | -------- | --------- |
+| **[RBAC Implementation](./rbac/)** | FR-04      | P0       | 🚀 Ready | 0/20 (0%) |
+
+---
+
+## 📊 Overall Progress
+
+### Phase 1 Status
+
+- **RBAC**: 0% (Not started)
+- **Multi-Tenancy Setup**: ✅ Complete (from previous work)
+- **Core Collections**: ✅ Complete (Users, Tenants, Locations, Packages, Sessions)
+
+### Next Up
+
+1. Complete RBAC implementation (3 weeks)
+2. Google OAuth integration
+3. Payment infrastructure (VietQR)
+
+---
+
+## 🚀 How to Use This Folder
+
+### Starting a New Task
+
+1. Navigate to task folder: `cd tasks/[task-name]`
+2. Read the README for overview
+3. Review implementation-plan.md for technical details
+4. Follow checklist.md for step-by-step execution
+
+### Tracking Progress
+
+- Update checkboxes in `checklist.md` as you complete tasks
+- Update progress percentage in task's `README.md`
+- Commit with format: `feat([task]): [description]`
+
+### Completing a Task
+
+- [ ] All checklist items completed
+- [ ] Tests passing
+- [ ] Documentation updated
+- [ ] Code reviewed
+- [ ] Deployed to staging
+- [ ] Mark task as ✅ Complete in this README
+
+---
+
+## 📚 Documentation Links
+
+### Planning Docs
+
+- [Implementation Phases](../docs/IMPLEMENTATION_PHASES.md)
+- [Implementation Plan](../docs/IMPLEMENTATION_PLAN.md)
+- [Progress Tracker](../docs/PROGRESS.md)
+
+### Architecture Docs
+
+- [System Architecture](../docs/04-architecture/system-architecture.md)
+- [Multi-Tenancy](../docs/04-architecture/multi-tenancy.md)
+- [Tech Stack](../docs/04-architecture/tech-stack.md)
+
+### Feature Specs
+
+- [Features Overview](../docs/05-features/FEATURES-OVERVIEW.md)
+- [Authentication Features](../docs/05-features/authentication/)
+- [Admin Features](../docs/05-features/admin/)
+
+---
+
+## 🔄 Task Lifecycle
+
+```
+📋 Planned → 🚀 Ready → 🏗️ In Progress → 🧪 Testing → ✅ Complete
+```
+
+### Status Definitions
+
+- **📋 Planned**: Task defined but not ready to start
+- **🚀 Ready**: All prerequisites met, can start immediately
+- **🏗️ In Progress**: Actively being worked on
+- **🧪 Testing**: Implementation complete, in testing phase
+- **✅ Complete**: Tested, reviewed, deployed
+
+---
+
+## 📞 Support
+
+**Questions about tasks?** Check the task's README or implementation plan.
+
+**Need to create a new task?** Follow the structure:
+
+```bash
+mkdir tasks/[task-name]
+touch tasks/[task-name]/README.md
+touch tasks/[task-name]/implementation-plan.md
+touch tasks/[task-name]/checklist.md
+```
+
+---
+
+**Maintained by:** Development Team  
+**Review Frequency:** Weekly

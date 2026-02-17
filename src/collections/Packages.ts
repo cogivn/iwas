@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import { slugField, type CollectionConfig } from 'payload'
 
 export const Packages: CollectionConfig = {
   slug: 'packages',
@@ -16,6 +16,9 @@ export const Packages: CollectionConfig = {
       required: true,
       label: 'Package Name',
     },
+    slugField({
+      fieldToUse: 'name',
+    }),
     {
       name: 'price',
       type: 'number',

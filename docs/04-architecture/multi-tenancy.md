@@ -45,6 +45,33 @@ The system uses domain-based tenant detection to serve the correct branding and 
 4.  **Automatic Filtering:** All subsequent database operations (e.g., fetching WiFi packages) are automatically scoped to that Tenant ID.
 5.  **Branding:** The Next.js frontend reads the tenant's branding configuration to render the custom UI.
 
+### 3. Domain Field Overrides
+
+While the plugin automatically adds a `domains` field, we can customize its behavior in `payload.config.ts` to better suit our frontend requirements:
+
+```typescript
+multiTenant({
+  tenants: {
+    domain: {
+      // We can override the domain field definition here
+      hidden: false,
+      admin: {
+        description: 'Domains that should point to this tenant (e.g. wifi.chain.com)',
+      },
+    },
+  },
+})
+```
+
+### 4. Frontend Domain Handling (Next.js)
+
+For our Next.js App Router implementation, we utilize high-performance domain matching:
+
+- **Middleware Resolution**: In `middleware.ts`, we extract the `host` header and provide it to Payload via the `X-Tenant-Domain` header if necessary for server-side operations.
+- **Custom Selection Logic**: We can use the `tenantSelector` option in the plugin to implement complex logic (e.g., checking custom headers, paths, or session data to resolve the tenant).
+- **Development Overrides**: For local testing (`localhost`), we can override the domain detection by adding a persistent `tenant-slug` in a biscuit/cookie or a query parameter (`?tenant=brand-a`).
+- **DNS Strategy**: We use wildcard DNS (`*.iwas.vn`) for subdomains, while custom Enterprise domains (`wifi.customer.com`) are added manually to the tenant's `domains` array.
+
 ---
 
 ## 📡 RADIUS Scoping
