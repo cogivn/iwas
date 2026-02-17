@@ -71,6 +71,8 @@ export interface Config {
     media: Media;
     locations: Location;
     packages: Package;
+    tenants: Tenant;
+    'wifi-sessions': WifiSession;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -82,6 +84,8 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     locations: LocationsSelect<false> | LocationsSelect<true>;
     packages: PackagesSelect<false> | PackagesSelect<true>;
+    tenants: TenantsSelect<false> | TenantsSelect<true>;
+    'wifi-sessions': WifiSessionsSelect<false> | WifiSessionsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -124,6 +128,28 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
+  /**
+   * Global role - Super Admin has access to all tenants
+   */
+  role: 'admin' | 'user';
+  tenants?:
+    | {
+        tenant: number | Tenant;
+        /**
+         * Roles for this user within this tenant
+         */
+        roles: ('org-admin' | 'loc-manager' | 'customer')[];
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Locations this user can manage (for Location Managers)
+   */
+  assignedLocations?: (number | Location)[] | null;
+  /**
+   * Allow downloading router setup scripts (disabled by default for security)
+   */
+  canDownloadScripts?: boolean | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -145,10 +171,47 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants".
+ */
+export interface Tenant {
+  id: number;
+  name: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  /**
+   * Domains that should point to this tenant (e.g. wifi.chain.com)
+   */
+  domains?:
+    | {
+        domain: string;
+        id?: string | null;
+      }[]
+    | null;
+  logo?: (number | null) | Media;
+  favicon?: (number | null) | Media;
+  theme?: {
+    /**
+     * Hex color code
+     */
+    primaryColor?: string | null;
+    /**
+     * Global border radius in pixels
+     */
+    borderRadius?: number | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
   id: number;
+  tenant?: (number | null) | Tenant;
   alt: string;
   updatedAt: string;
   createdAt: string;
@@ -168,10 +231,12 @@ export interface Media {
  */
 export interface Location {
   id: number;
+  tenant?: (number | null) | Tenant;
   name: string;
   /**
-   * Used in URLs and API lookups
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
+  generateSlug?: boolean | null;
   slug: string;
   isActive?: boolean | null;
   address?: string | null;
@@ -189,7 +254,13 @@ export interface Location {
  */
 export interface Package {
   id: number;
+  tenant?: (number | null) | Tenant;
   name: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
   price: number;
   duration: number;
   description?: string | null;
@@ -202,6 +273,27 @@ export interface Package {
    * Leave empty to make available in all locations
    */
   locations?: (number | Location)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wifi-sessions".
+ */
+export interface WifiSession {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  user: number | User;
+  location: number | Location;
+  package: number | Package;
+  startTime: string;
+  endTime?: string | null;
+  status?: ('active' | 'completed' | 'expired') | null;
+  /**
+   * IP of the NAS that originated the session
+   */
+  nasIpAddress?: string | null;
+  macAddress?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -244,6 +336,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'packages';
         value: number | Package;
+      } | null)
+    | ({
+        relationTo: 'tenants';
+        value: number | Tenant;
+      } | null)
+    | ({
+        relationTo: 'wifi-sessions';
+        value: number | WifiSession;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -292,6 +392,16 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  role?: T;
+  tenants?:
+    | T
+    | {
+        tenant?: T;
+        roles?: T;
+        id?: T;
+      };
+  assignedLocations?: T;
+  canDownloadScripts?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -314,6 +424,7 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
+  tenant?: T;
   alt?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -332,7 +443,9 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "locations_select".
  */
 export interface LocationsSelect<T extends boolean = true> {
+  tenant?: T;
   name?: T;
+  generateSlug?: T;
   slug?: T;
   isActive?: T;
   address?: T;
@@ -351,7 +464,10 @@ export interface LocationsSelect<T extends boolean = true> {
  * via the `definition` "packages_select".
  */
 export interface PackagesSelect<T extends boolean = true> {
+  tenant?: T;
   name?: T;
+  generateSlug?: T;
+  slug?: T;
   price?: T;
   duration?: T;
   description?: T;
@@ -363,6 +479,48 @@ export interface PackagesSelect<T extends boolean = true> {
       };
   isPublic?: T;
   locations?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants_select".
+ */
+export interface TenantsSelect<T extends boolean = true> {
+  name?: T;
+  generateSlug?: T;
+  slug?: T;
+  domains?:
+    | T
+    | {
+        domain?: T;
+        id?: T;
+      };
+  logo?: T;
+  favicon?: T;
+  theme?:
+    | T
+    | {
+        primaryColor?: T;
+        borderRadius?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wifi-sessions_select".
+ */
+export interface WifiSessionsSelect<T extends boolean = true> {
+  tenant?: T;
+  user?: T;
+  location?: T;
+  package?: T;
+  startTime?: T;
+  endTime?: T;
+  status?: T;
+  nasIpAddress?: T;
+  macAddress?: T;
   updatedAt?: T;
   createdAt?: T;
 }
