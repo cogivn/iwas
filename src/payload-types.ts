@@ -176,20 +176,12 @@ export interface User {
 export interface Tenant {
   id: number;
   name: string;
+  slug?: string | null;
   /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   * Domain that should point to this tenant (e.g. wifi.chain.com)
    */
-  generateSlug?: boolean | null;
-  slug: string;
-  /**
-   * Domains that should point to this tenant (e.g. wifi.chain.com)
-   */
-  domains?:
-    | {
-        domain: string;
-        id?: string | null;
-      }[]
-    | null;
+  domain?: string | null;
+  isActive?: boolean | null;
   logo?: (number | null) | Media;
   favicon?: (number | null) | Media;
   theme?: {
@@ -488,14 +480,9 @@ export interface PackagesSelect<T extends boolean = true> {
  */
 export interface TenantsSelect<T extends boolean = true> {
   name?: T;
-  generateSlug?: T;
   slug?: T;
-  domains?:
-    | T
-    | {
-        domain?: T;
-        id?: T;
-      };
+  domain?: T;
+  isActive?: T;
   logo?: T;
   favicon?: T;
   theme?:

@@ -9,7 +9,7 @@ import type { Access } from 'payload'
 export const isCustomer = (user: User | null | undefined): boolean => {
   return (
     user?.tenants?.some((t) => {
-      const roles = t.roles
+      const roles = t?.roles
       return Array.isArray(roles) && roles.includes('customer')
     }) || false
   )

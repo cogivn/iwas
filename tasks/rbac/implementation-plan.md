@@ -138,14 +138,14 @@ export const orgAdminScope = ({ req: { user } }) => {
 **Scope:** Assigned Location(s)  
 **Use Case:** Individual branch operations
 
-| Resource  | Create | Read          | Update        | Delete | Special             |
-| --------- | ------ | ------------- | ------------- | ------ | ------------------- |
-| Tenants   | ❌     | ❌            | ❌            | ❌     | -                   |
-| Users     | ❌     | ✅ (location) | ❌            | ❌     | View customers only |
-| Locations | ❌     | ✅ (assigned) | ✅ (assigned) | ❌     | Own branches        |
-| Packages  | ❌     | ✅ (location) | ❌            | ❌     | View only           |
-| Sessions  | ❌     | ✅ (location) | ✅ (location) | ❌     | Force disconnect    |
-| Payments  | ❌     | ✅ (location) | ❌            | ❌     | Location revenue    |
+| Resource  | Create | Read          | Update         | Delete | Special             |
+| --------- | ------ | ------------- | -------------- | ------ | ------------------- |
+| Tenants   | ❌     | ❌            | ❌             | ❌     | -                   |
+| Users     | ❌     | ✅ (location) | ✅ (view only) | ❌     | View customers only |
+| Locations | ❌     | ✅ (assigned) | ✅ (assigned)  | ❌     | Own branches        |
+| Packages  | ❌     | ✅ (location) | ❌             | ❌     | View only           |
+| Sessions  | ❌     | ✅ (location) | ✅ (location)  | ❌     | Force disconnect    |
+| Payments  | ❌     | ✅ (location) | ❌             | ❌     | Location revenue    |
 
 **Special Permissions:**
 

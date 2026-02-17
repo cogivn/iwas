@@ -1,7 +1,7 @@
 import type { User } from '../payload-types'
 import type { Access } from 'payload'
 import { isSuperAdmin } from './isSuperAdmin'
-import { getUserTenantIDs } from './auth'
+import { extractID, getUserTenantIDs } from './auth'
 
 /**
  * Check if user is an Organization Admin in any tenant
@@ -13,7 +13,7 @@ export const isOrgAdmin = (user: User | null | undefined): boolean => {
 
   return (
     user?.tenants?.some((t) => {
-      const roles = t.roles
+      const roles = t?.roles
       return Array.isArray(roles) && roles.includes('org-admin')
     }) || false
   )
@@ -34,4 +34,26 @@ export const orgAdminScope: Access = ({ req: { user } }) => {
       in: tenantIDs,
     },
   }
+}
+
+/**
+ * Check if user is an Organization Admin for a specific tenant
+ * @param user - User object or null
+ * @param tenantID - Tenant ID to check
+ * @returns true if user has 'org-admin' role in the specified tenant
+ */
+export const isOrgAdminForTenant = (
+  user: User | null | undefined,
+  tenantID: number | string,
+): boolean => {
+  if (isSuperAdmin(user)) return true
+
+  return (
+    user?.tenants?.some((t) => {
+      const tID = extractID(t.tenant)
+      if (String(tID) !== String(tenantID)) return false
+      const roles = t?.roles
+      return Array.isArray(roles) && roles.includes('org-admin')
+    }) || false
+  )
 }

@@ -1,4 +1,6 @@
-import { slugField, type CollectionConfig } from 'payload'
+import { type CollectionConfig } from 'payload'
+import { slugField } from '../fields/slug'
+import { superAdminAccess } from '../access'
 
 export const Tenants: CollectionConfig = {
   slug: 'tenants',
@@ -8,6 +10,9 @@ export const Tenants: CollectionConfig = {
   },
   access: {
     read: () => true,
+    create: superAdminAccess,
+    update: superAdminAccess,
+    delete: superAdminAccess,
   },
   fields: [
     {
@@ -19,17 +24,18 @@ export const Tenants: CollectionConfig = {
       fieldToUse: 'name',
     }),
     {
-      name: 'domains',
-      type: 'array',
-      fields: [
-        {
-          name: 'domain',
-          type: 'text',
-          required: true,
-        },
-      ],
+      name: 'domain',
+      type: 'text',
       admin: {
-        description: 'Domains that should point to this tenant (e.g. wifi.chain.com)',
+        description: 'Domain that should point to this tenant (e.g. wifi.chain.com)',
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'isActive',
+      type: 'checkbox',
+      defaultValue: true,
+      admin: {
         position: 'sidebar',
       },
     },

@@ -1,3 +1,4 @@
+import type { Access } from 'payload'
 import type { User } from '../payload-types'
 
 /**
@@ -8,3 +9,8 @@ import type { User } from '../payload-types'
 export const isSuperAdmin = (user: User | null | undefined): boolean => {
   return user?.role === 'admin'
 }
+
+/**
+ * Access control for Super Admins only
+ */
+export const superAdminAccess: Access = ({ req: { user } }) => isSuperAdmin(user)

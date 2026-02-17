@@ -25,7 +25,7 @@ export const extractID = <T extends { id: any }>(objectOrID: T | any): any => {
  */
 export const getUserTenantIDs = (user: User | null | undefined): (number | string)[] => {
   if (!user) return []
-  return user.tenants?.map((t) => extractID(t.tenant)).filter(Boolean) || []
+  return user.tenants?.map((t) => (t?.tenant ? extractID(t.tenant) : null)).filter(Boolean) || []
 }
 
 /**
@@ -42,7 +42,7 @@ export const hasRoleInAnyTenant = (
 
   return (
     user.tenants?.some((t) => {
-      const roles = t.roles
+      const roles = t?.roles
       return Array.isArray(roles) && roles.includes(role)
     }) || false
   )
