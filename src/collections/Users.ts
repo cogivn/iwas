@@ -1,95 +1,125 @@
 import { tenantsArrayField } from '@payloadcms/plugin-multi-tenant/fields'
 import type { CollectionConfig, Where } from 'payload'
+import type { User } from '../payload-types'
 import {
-  isSuperAdmin,
-  superAdminAccess,
-  getUserTenantIDs,
-  isOrgAdmin,
-  isLocationManager,
-} from '../access'
+  getSystemTenantIdCached,
+  getSystemTenantIdSync,
+  ensureSystemTenantExists,
+  ensureDefaultTenantExists,
+  SYSTEM_TENANT_SLUG,
+} from '../access/systemTenant'
+import {
+  hasPermission,
+  getTenantIdsForUser,
+  usersReadAccess,
+  usersMutateAccess,
+  requirePermission,
+} from '../access/hasPermission'
+import { PERMISSIONS } from '../access/permissions'
+import {
+  getAssignableRoleValues,
+  ROLE_OPTIONS,
+  ROLE_SLUG_CUSTOMER,
+  ROLE_SLUG_SYSTEM_ADMIN,
+  ROLES_WITH_LOCATION_MANAGER_FIELDS,
+  type RoleSlug,
+} from '../access/roles'
+import { extractID } from '../access/auth'
 
 export const Users: CollectionConfig = {
   slug: 'users',
   admin: {
     useAsTitle: 'email',
   },
+  hooks: {
+    beforeChange: [
+      // Strip assignments above current user's level (role hierarchy: cannot assign role above own)
+      async ({ data, req }) => {
+        const tenants = data?.tenants as Array<{ tenant?: unknown; roles?: string[] }> | undefined
+        if (!Array.isArray(tenants) || tenants.length === 0) return data
+        const systemTenantId = await getSystemTenantIdCached(req)
+        const assignable = getAssignableRoleValues(req.user as User, { systemTenantId: systemTenantId ?? undefined })
+        const canAssignSystemTenant = hasPermission(req.user as User, PERMISSIONS.SYSTEM_MANAGE, {
+          systemTenantId: systemTenantId ?? undefined,
+        })
+        data.tenants = tenants
+          .filter((t) => {
+            const tid = t?.tenant != null ? extractID(t.tenant) : null
+            if (systemTenantId != null && String(tid) === String(systemTenantId))
+              return canAssignSystemTenant
+            return true
+          })
+          .map((t) => {
+            const roles = ((t?.roles ?? []) as string[]).filter((r) => assignable.includes(r as RoleSlug))
+            return { ...t, roles }
+          })
+          .filter((t) => (t?.roles?.length ?? 0) > 0) as typeof data.tenants
+        return data
+      },
+      // On create with no tenants (e.g. signup): first user → system-admin; others → default tenant + customer
+      async ({ data, req, operation }) => {
+        if (operation !== 'create') return data
+        const tenants = data?.tenants as Array<{ tenant?: unknown; roles?: string[] }> | undefined
+        if (Array.isArray(tenants) && tenants.length > 0) return data
+
+        const { totalDocs } = await req.payload.find({
+          collection: 'users',
+          limit: 0,
+        })
+
+        if (totalDocs === 0) {
+          // First user: system-admin so they can create tenants and manage platform (bootstrap)
+          const systemTenantId = await ensureSystemTenantExists(req.payload, req)
+          data.tenants = [{ tenant: systemTenantId, roles: [ROLE_SLUG_SYSTEM_ADMIN] }]
+        } else {
+          // Subsequent users: default tenant + customer
+          const defaultTenantId = await ensureDefaultTenantExists(req.payload, req)
+          data.tenants = [{ tenant: defaultTenantId, roles: [ROLE_SLUG_CUSTOMER] }]
+        }
+        return data
+      },
+      async ({ data, req }) => {
+        const tenants = data?.tenants as Array<{ tenant?: unknown; roles?: string[] }> | undefined
+        if (!Array.isArray(tenants) || tenants.length <= 1) return data
+        const systemTenantId = await getSystemTenantIdCached(req)
+        if (systemTenantId == null) return data
+        const hasSystemAdmin = tenants.some((t) => {
+          const tid = t?.tenant != null ? extractID(t.tenant) : null
+          const roles = (t?.roles ?? []) as string[]
+          return String(tid) === String(systemTenantId) && roles.includes(ROLE_SLUG_SYSTEM_ADMIN)
+        })
+        if (hasSystemAdmin) {
+          throw new Error(
+            `User with System Admin (${SYSTEM_TENANT_SLUG}) must not have other tenant assignments. Remove other tenants or remove system-admin.`,
+          )
+        }
+        return data
+      },
+    ],
+  },
   access: {
-    create: ({ req: { user } }) => isSuperAdmin(user) || isOrgAdmin(user),
-    read: ({ req: { user } }): boolean | Where => {
-      if (isSuperAdmin(user)) return true
-      if (!user) return false
-
-      const tenantIDs = getUserTenantIDs(user)
-
-      // If user is a manager, they can see users in their assigned tenants
-      if (tenantIDs.length > 0 && (isOrgAdmin(user) || isLocationManager(user))) {
-        return {
-          'tenants.tenant': {
-            in: tenantIDs,
-          },
-        } as Where
-      }
-
-      // regular users can only see themselves
-      return {
-        id: {
-          equals: user.id,
-        },
-      } as Where
-    },
-    update: ({ req: { user } }) => {
-      if (isSuperAdmin(user)) return true
-      if (isOrgAdmin(user)) {
-        const tenantIDs = getUserTenantIDs(user)
-        return {
-          'tenants.tenant': {
-            in: tenantIDs,
-          },
-        } as Where
-      }
-      return false
-    },
-    delete: ({ req: { user } }) => {
-      if (isSuperAdmin(user)) return true
-      if (isOrgAdmin(user)) {
-        const tenantIDs = getUserTenantIDs(user)
-        return {
-          'tenants.tenant': {
-            in: tenantIDs,
-          },
-        } as Where
-      }
-      return false
-    },
+    create: requirePermission(PERMISSIONS.USERS_CREATE),
+    read: usersReadAccess(),
+    update: usersMutateAccess(PERMISSIONS.USERS_UPDATE),
+    delete: usersMutateAccess(PERMISSIONS.USERS_DELETE),
   },
   auth: true,
   fields: [
     {
-      name: 'role',
-      type: 'select',
-      required: true,
-      defaultValue: 'user',
-      access: {
-        create: ({ req: { user } }: any) => isSuperAdmin(user),
-        update: ({ req: { user } }: any) => isSuperAdmin(user),
-        read: () => true,
-      },
-      options: [
-        { label: 'Super Admin', value: 'admin' },
-        { label: 'User', value: 'user' },
-      ],
-      admin: {
-        description: 'Global role - Super Admin has access to all tenants',
-      },
-    },
-    {
       name: 'tenants',
       type: 'array',
-      // Ensure only super admin can add/remove tenant rows
-      // Ensure only super admin can add/remove tenant rows
+      admin: {
+        description: 'System Admin (Platform tenant) cannot be combined with other tenants – one assignment only.',
+      },
       access: {
-        create: ({ req: { user } }: any) => isSuperAdmin(user) || isOrgAdmin(user),
-        update: ({ req: { user } }: any) => isSuperAdmin(user) || isOrgAdmin(user),
+        create: async ({ req }) => {
+          const systemTenantId = await getSystemTenantIdCached(req)
+          return hasPermission(req.user as User, PERMISSIONS.USERS_UPDATE, { systemTenantId })
+        },
+        update: async ({ req }) => {
+          const systemTenantId = await getSystemTenantIdCached(req)
+          return hasPermission(req.user as User, PERMISSIONS.USERS_UPDATE, { systemTenantId })
+        },
       },
       fields: [
         {
@@ -98,41 +128,28 @@ export const Users: CollectionConfig = {
           relationTo: 'tenants',
           required: true,
           access: {
-            // Super admins can change to any tenant
-            // Org admins can only assign to tenants they manage
-            create: ({ req: { user } }: any) => isSuperAdmin(user) || isOrgAdmin(user),
-            update: ({ req: { user } }: any) => isSuperAdmin(user),
+            create: async ({ req }) => {
+              const systemTenantId = await getSystemTenantIdCached(req)
+              return hasPermission(req.user as User, PERMISSIONS.USERS_UPDATE, { systemTenantId })
+            },
+            update: async ({ req }) =>
+              (await requirePermission(PERMISSIONS.SYSTEM_MANAGE)({ req })) === true,
           },
-          filterOptions: ({ req: { user } }: any) => {
-            const baseFilter: any = {
-              isActive: { equals: true },
-            }
-
-            if (isSuperAdmin(user)) {
-              return baseFilter
-            }
-
-            if (isOrgAdmin(user)) {
-              const tenantIDs = getUserTenantIDs(user)
-              return {
-                ...baseFilter,
-                id: { in: tenantIDs },
-              }
-            }
-
+          filterOptions: async ({ req }): Promise<Where | boolean> => {
+            const user = req.user as User
+            const systemTenantId = await getSystemTenantIdCached(req)
+            const tenantIds = getTenantIdsForUser(user, { systemTenantId })
+            const baseFilter: Where = { isActive: { equals: true } }
+            if (tenantIds === 'all') return baseFilter
+            if (tenantIds.length > 0) return { ...baseFilter, id: { in: tenantIds } }
             return baseFilter
           },
-          validate: async (val: any, options: any) => {
+          validate: async (val: unknown, options: { req: { payload: any } }) => {
             if (!val) return true
-            const id = typeof val === 'object' ? val.id : val
+            const id = typeof val === 'object' && val && 'id' in val ? (val as { id: any }).id : val
             const payload = options.req.payload
-            const tenant = await payload.findByID({
-              collection: 'tenants',
-              id,
-            })
-            if (tenant && !tenant.isActive) {
-              return 'Cannot assign a disabled tenant'
-            }
+            const tenant = await payload.findByID({ collection: 'tenants', id })
+            if (tenant && !tenant.isActive) return 'Cannot assign a disabled tenant'
             return true
           },
         },
@@ -141,29 +158,40 @@ export const Users: CollectionConfig = {
           type: 'select',
           hasMany: true,
           required: true,
-          defaultValue: ['customer'],
+          defaultValue: [ROLE_SLUG_CUSTOMER],
           access: {
-            // Org admins can manage roles for users within the tenants they belong to
-            create: ({ req: { user } }: any) => isSuperAdmin(user) || isOrgAdmin(user),
-            update: ({ req: { user } }: any) => isSuperAdmin(user) || isOrgAdmin(user),
+            create: async ({ req }) => {
+              const systemTenantId = await getSystemTenantIdCached(req)
+              return hasPermission(req.user as User, PERMISSIONS.USERS_UPDATE, { systemTenantId })
+            },
+            update: async ({ req }) => {
+              const systemTenantId = await getSystemTenantIdCached(req)
+              return hasPermission(req.user as User, PERMISSIONS.USERS_UPDATE, { systemTenantId })
+            },
           },
-          validate: (val: any, { req: { user, payload } }: any) => {
-            // Allow system operations (seeding, etc) where user might be null
-            if (!user) return true
-            if (isSuperAdmin(user)) return true
-            if (isOrgAdmin(user)) return true
-
-            // If user has value but not authorized, block it
-            if (val && val.length > 0) {
-              return 'You do not have permission to assign roles in this tenant'
+          validate: async (val: unknown, { req, siblingData }: any) => {
+            if (!req.user) return true
+            const roles = Array.isArray(val) ? val : []
+            if (!roles.includes(ROLE_SLUG_SYSTEM_ADMIN)) return true
+            const systemTenantId = await getSystemTenantIdCached(req)
+            const tenantRef = siblingData?.tenant
+            const tenantId = tenantRef != null ? extractID(tenantRef) : null
+            if (tenantId == null || String(tenantId) !== String(systemTenantId)) {
+              return `Role "System Admin" can only be assigned for the Platform (${SYSTEM_TENANT_SLUG}) tenant`
             }
             return true
           },
-          options: [
-            { label: 'Organization Admin', value: 'org-admin' },
-            { label: 'Location Manager', value: 'loc-manager' },
-            { label: 'Customer', value: 'customer' },
-          ],
+          options: ROLE_OPTIONS,
+          filterOptions: ({ options, req }) => {
+            const systemTenantId = getSystemTenantIdSync()
+            const assignable = getAssignableRoleValues(req.user as User, {
+              systemTenantId: systemTenantId ?? undefined,
+            })
+            return options.filter((o) => {
+              const v = typeof o === 'string' ? o : o.value
+              return assignable.includes(v as RoleSlug)
+            })
+          },
           admin: {
             description: 'Roles for this user within this tenant',
           },
@@ -178,10 +206,13 @@ export const Users: CollectionConfig = {
       admin: {
         description: 'Locations this user can manage (for Location Managers)',
         condition: (data) => {
-          // Show only if user has loc-manager role in any tenant
           return Boolean(
             Array.isArray(data?.tenants) &&
-            data.tenants.some((t: any) => t?.roles?.includes('loc-manager')),
+            data.tenants.some((t: any) =>
+              (t?.roles ?? []).some((r: string) =>
+                ROLES_WITH_LOCATION_MANAGER_FIELDS.includes(r as RoleSlug),
+              ),
+            ),
           )
         },
       },
@@ -193,10 +224,13 @@ export const Users: CollectionConfig = {
       admin: {
         description: 'Allow downloading router setup scripts (disabled by default for security)',
         condition: (data) => {
-          // Show only if user has loc-manager role in any tenant
           return Boolean(
             Array.isArray(data?.tenants) &&
-            data.tenants.some((t: any) => t?.roles?.includes('loc-manager')),
+            data.tenants.some((t: any) =>
+              (t?.roles ?? []).some((r: string) =>
+                ROLES_WITH_LOCATION_MANAGER_FIELDS.includes(r as RoleSlug),
+              ),
+            ),
           )
         },
       },

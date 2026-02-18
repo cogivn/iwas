@@ -1,6 +1,7 @@
-import { type CollectionConfig } from 'payload'
+import type { CollectionConfig } from 'payload'
 import { slugField } from '../fields/slug'
-import { superAdminAccess } from '../access'
+import { requirePermission } from '../access/hasPermission'
+import { PERMISSIONS } from '../access/permissions'
 
 export const Tenants: CollectionConfig = {
   slug: 'tenants',
@@ -10,9 +11,9 @@ export const Tenants: CollectionConfig = {
   },
   access: {
     read: () => true,
-    create: superAdminAccess,
-    update: superAdminAccess,
-    delete: superAdminAccess,
+    create: requirePermission(PERMISSIONS.TENANTS_CREATE),
+    update: requirePermission(PERMISSIONS.TENANTS_UPDATE),
+    delete: requirePermission(PERMISSIONS.TENANTS_DELETE),
   },
   fields: [
     {

@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Unreleased]
+
+### Updated (2026-02)
+
+#### Architecture & RBAC
+
+- **rbac-implementation.md**: Viết lại cho khớp implementation hiện tại: permission-based access, ROLE_ORDER & getAssignableRoleValues (role hierarchy), System Tenant / Default Tenant, first-user bootstrap, filterOptions + strip, env SYSTEM_TENANT_ID, bảng file trong `src/access/`, hướng dẫn thêm role mới.
+- **PAYLOAD-AUTH-AND-ROLE-PLAN.md**: Cập nhật mục "Hiện trạng" (chỉ tenants[].roles, role hierarchy, bootstrap) và "Thứ tự thực hiện" (đánh dấu đã xong: bỏ field role, role hierarchy, bootstrap, strip/filter, bỏ isOrgAdmin/isLocationManager); cập nhật "Tài liệu tham chiếu" (code paths).
+- **users.md** (06-data-model): Cập nhật schema (không global role, tenants[].roles, role hierarchy), access control (usersReadAccess, usersMutateAccess, requirePermission), bootstrap & default tenant, link sang rbac-implementation.
+- **DOCUMENTATION-GUIDE.md**: Thêm mục "Keeping architecture & RBAC docs up-to-date" – bảng gợi ý cập nhật docs khi đổi access/roles/permissions/Users.
+
+---
+
 ## [1.0.0] - 2026-02-16
 
 ### Added

@@ -65,6 +65,7 @@ export default buildConfig({
     }),
   ],
   async onInit(payload) {
-    await seed(payload)
+    // disabled seeding for now
+    // await seed(payload)
   },
 })

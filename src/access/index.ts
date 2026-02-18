@@ -1,20 +1,49 @@
 /**
  * RBAC Access Control Utilities
  *
- * This module provides role-based access control functions for the IWAS platform.
- * It implements a hierarchical permission system with 4 main roles:
- *
- * 1. Super Admin - Global access to all tenants
- * 2. Organization Admin - Tenant-scoped access
- * 3. Location Manager - Location-scoped access
- * 4. Customer - Self-only access
+ * Use hasPermission, requirePermission, canAccessAdmin, usersReadAccess, usersMutateAccess for access.
+ * isSuperAdmin is kept for payload.config / multi-tenant plugin (sync callback where async hasPermission is not available).
  */
 
-// Core utilities (excluding isSuperAdmin to avoid duplicate export)
-export { extractID, getUserTenantIDs, hasRoleInAnyTenant, getCollectionIDType } from './auth'
-
-// Role checks
+export {
+  extractID,
+  getUserTenantIDs,
+  hasRoleInAnyTenant,
+  getCollectionIDType,
+  type UserTenantRole,
+} from './auth'
 export * from './isSuperAdmin'
-export * from './isOrgAdmin'
-export * from './isLocationManager'
-export * from './isCustomer'
+
+export { PERMISSIONS, type Permission } from './permissions'
+export {
+  ROLE_ORDER,
+  ROLE_LABELS,
+  ROLE_OPTIONS,
+  ROLE_SLUG_SYSTEM_ADMIN,
+  ROLE_SLUG_ORG_ADMIN,
+  ROLE_SLUG_LOC_MANAGER,
+  ROLE_SLUG_CUSTOMER,
+  ROLES_WITH_LOCATION_MANAGER_FIELDS,
+  ROLE_PERMISSIONS,
+  getAssignableRoleValues,
+  type RoleSlug,
+  type RoleHierarchyContext,
+} from './roles'
+export {
+  SYSTEM_TENANT_SLUG,
+  DEFAULT_TENANT_SLUG,
+  getSystemTenantId,
+  getSystemTenantIdCached,
+  ensureSystemTenantExists,
+  ensureDefaultTenantExists,
+} from './systemTenant'
+export {
+  hasPermission,
+  getTenantIdsForUser,
+  canAccessAdmin,
+  requirePermission,
+  requirePermissionWithTenantScope,
+  usersReadAccess,
+  usersMutateAccess,
+  type PermissionContext,
+} from './hasPermission'

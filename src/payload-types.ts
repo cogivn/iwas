@@ -129,16 +129,15 @@ export interface UserAuthOperations {
 export interface User {
   id: number;
   /**
-   * Global role - Super Admin has access to all tenants
+   * System Admin (Platform tenant) cannot be combined with other tenants – one assignment only.
    */
-  role: 'admin' | 'user';
   tenants?:
     | {
         tenant: number | Tenant;
         /**
          * Roles for this user within this tenant
          */
-        roles: ('org-admin' | 'loc-manager' | 'customer')[];
+        roles: ('system-admin' | 'org-admin' | 'loc-manager' | 'customer')[];
         id?: string | null;
       }[]
     | null;
@@ -384,7 +383,6 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
-  role?: T;
   tenants?:
     | T
     | {

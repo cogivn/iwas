@@ -1,13 +1,12 @@
-import type { User, Tenant } from '../payload-types'
+import type { User } from '../payload-types'
 import type { CollectionSlug, Payload } from 'payload'
 
-/**
- * Check if user is a Super Admin (global access)
- * Note: This is re-exported from isSuperAdmin.ts for backwards compatibility
- */
-export const isSuperAdmin = (user: User | null | undefined): boolean => {
-  return user?.role === 'admin'
-}
+/** Role slug from User.tenants[].roles – stays in sync with payload-types after generate:types */
+export type UserTenantRole = NonNullable<
+  NonNullable<User['tenants']>[number]['roles']
+>[number]
+
+export { isSuperAdmin } from './isSuperAdmin'
 
 /**
  * Extract ID from object or return ID directly
@@ -31,12 +30,12 @@ export const getUserTenantIDs = (user: User | null | undefined): (number | strin
 /**
  * Check if user has a specific role in any tenant
  * @param user - User object
- * @param role - Role to check for ('org-admin', 'loc-manager', 'customer')
+ * @param role - Role to check for (from User.tenants[].roles)
  * @returns true if user has the role in any tenant
  */
 export const hasRoleInAnyTenant = (
   user: User | null | undefined,
-  role: 'org-admin' | 'loc-manager' | 'customer',
+  role: UserTenantRole,
 ): boolean => {
   if (!user) return false
 

@@ -1,27 +1,45 @@
 import type { Payload } from 'payload'
+import { ROLE_SLUG_SYSTEM_ADMIN } from '../access/roles'
+import { DEFAULT_TENANT_SLUG, SYSTEM_TENANT_SLUG } from '../access/systemTenant'
 
 export const seed = async (payload: Payload): Promise<void> => {
-  // Tự động tạo Tenant mặc định nếu chưa có
-  const tenants = await payload.find({
+  // Ensure System Tenant (Platform) exists for system-admin role
+  const systemTenants = await payload.find({
     collection: 'tenants',
+    where: { slug: { equals: SYSTEM_TENANT_SLUG } },
     limit: 1,
   })
-
-  let defaultTenantId
-  if (tenants.docs.length === 0) {
-    const tenant = await payload.create({
+  let systemTenantId: number | string
+  if (systemTenants.docs.length === 0) {
+    const systemTenant = await payload.create({
       collection: 'tenants',
       data: {
-        name: 'Default Tenant',
-        slug: 'default',
+        name: 'Platform',
+        slug: SYSTEM_TENANT_SLUG,
       },
     })
-    defaultTenantId = tenant.id
+    systemTenantId = systemTenant.id
+    payload.logger.info('--- SYSTEM TENANT CREATED (slug: system) ---')
   } else {
-    defaultTenantId = tenants.docs[0].id
+    systemTenantId = systemTenants.docs[0].id
   }
 
-  // Tự động tạo Admin User đầu tiên nếu chưa có
+  // Default tenant for new users (optional)
+  const defaultTenants = await payload.find({
+    collection: 'tenants',
+    where: { slug: { equals: DEFAULT_TENANT_SLUG } },
+    limit: 1,
+  })
+  if (defaultTenants.docs.length === 0) {
+    await payload.create({
+      collection: 'tenants',
+      data: { name: 'Default Tenant', slug: DEFAULT_TENANT_SLUG },
+    })
+  }
+
+  payload.logger.info(`--- Set SYSTEM_TENANT_ID=${systemTenantId} in .env for admin full access ---`)
+
+  // First user: system-admin (assigned to System Tenant)
   const users = await payload.find({
     collection: 'users',
     limit: 1,
@@ -33,15 +51,14 @@ export const seed = async (payload: Payload): Promise<void> => {
       data: {
         email: 'admin@iwas.com',
         password: 'admin',
-        role: 'admin',
         tenants: [
           {
-            tenant: defaultTenantId,
-            roles: ['org-admin'], // Organization Admin role for the default tenant
+            tenant: systemTenantId,
+            roles: [ROLE_SLUG_SYSTEM_ADMIN],
           },
         ],
       },
     })
-    payload.logger.info('--- FIRST USER CREATED: admin@iwas.com / admin ---')
+    payload.logger.info('--- FIRST USER CREATED: admin@iwas.com / admin (system-admin) ---')
   }
 }

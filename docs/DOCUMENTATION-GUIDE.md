@@ -259,6 +259,19 @@ All integrations are in `09-integrations/`:
 3. **Update Changelog**
    - Document what changed and why
 
+### Keeping architecture & RBAC docs up-to-date
+
+Khi thay đổi **access control, roles, permissions hoặc Users collection**, cập nhật các tài liệu sau để docs luôn khớp code:
+
+| Thay đổi | Cập nhật tài liệu |
+|----------|--------------------|
+| Thêm/sửa permission, role, ROLE_ORDER | `04-architecture/rbac-implementation.md`, `04-architecture/PAYLOAD-AUTH-AND-ROLE-PLAN.md` |
+| Thay đổi System Tenant / Default Tenant / bootstrap | `04-architecture/rbac-implementation.md`, `06-data-model/users.md`, `04-architecture/PAYLOAD-AUTH-AND-ROLE-PLAN.md` |
+| Thay đổi schema hoặc access Users | `06-data-model/users.md`, `04-architecture/rbac-implementation.md` nếu ảnh hưởng pattern |
+| Đổi API trong `src/access/` (hasPermission, requirePermission, …) | `04-architecture/rbac-implementation.md` (bảng file & mô tả API) |
+
+**Nguồn sự thật:** Code trong `src/access/` và `src/collections/Users.ts`. Docs mô tả lại để dev và AI dễ tra cứu; khi code đổi thì sửa docs tương ứng.
+
 ---
 
 ## 🔗 Cross-Referencing

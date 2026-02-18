@@ -1,63 +1,51 @@
 # Users Collection
 
 **Collection ID:** `users`  
-**Description:** Centralized user management for admins, managers, and customers.
+**Description:** Quản lý user cho admin, org-admin, loc-manager và customer. Auth qua Payload built-in; role lưu trong `tenants[].roles` (một nguồn duy nhất).
 
 ---
 
-## 📄 Schema Definition
+## Schema (hiện tại)
 
-| Field                | Type            | Required | Description                                      |
-| -------------------- | --------------- | -------- | ------------------------------------------------ |
-| `email`              | `email`         | ✅       | Primary login identifier.                        |
-| `name`               | `string`        | ✅       | Full display name.                               |
-| `roles`              | `select (mult)` | ✅       | Global roles (`super-admin`).                    |
-| `tenants`            | `array`         | ❌       | Managed by Multi-Tenant plugin.                  |
-| `tenants.tenant`     | `relationship`  | ✅       | Link to `organizations`.                         |
-| `tenants.roles`      | `select (mult)` | ✅       | `org-admin`, `loc-manager`, `customer`.          |
-| `assignedLocations`  | `relationship`  | ❌       | List of 0-N branches (for Managers).             |
-| **PC Identity**      | **group**       | ❌       | For iCafe integration.                           |
-| `pc.userId`          | `string`        | ❌       | UUID from the local PC Management system.        |
-| `pc.balance`         | `number`        | ❌       | Cached or real-time balance indicator.           |
-| **Permissions**      | **group**       | ✅       | Access overrides.                                |
-| `canDownloadScripts` | `boolean`       | ✅       | Toggle for Location Managers (Default: `false`). |
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `email` | `email` | ✅ | Đăng nhập (auth). |
+| `password` | `text` | (auth) | Hash, do Payload auth quản lý. |
+| `tenants` | `array` | ✅ | Gán user vào tenant + role. Mỗi phần tử: `tenant` (relationship → tenants), `roles` (select hasMany). |
+| `tenants.tenant` | `relationship` | ✅ | Link tới collection `tenants`. filterOptions giới hạn theo quyền user. |
+| `tenants.roles` | `select` (hasMany) | ✅ | `system-admin`, `org-admin`, `loc-manager`, `customer`. filterOptions chỉ hiển thị role user được phép gán (role hierarchy). |
+| `assignedLocations` | `relationship` (hasMany) | ❌ | Locations user quản lý (cho loc-manager). Hiện khi user có loc-manager trong bất kỳ tenant nào. |
+| `canDownloadScripts` | `checkbox` | ❌ | Cho phép tải script cấu hình router (mặc định false). Hiện khi có loc-manager. |
 
----
+**Lưu ý:**
 
-## 💻 TypeScript Type (POJO)
-
-```typescript
-export type User = {
-  id: string
-  email: string
-  name: string
-  roles: 'super-admin'[] // Global roles
-  tenants?: {
-    tenant: string | Organization
-    roles: ('org-admin' | 'loc-manager' | 'customer')[]
-  }[]
-  assignedLocations?: (string | Location)[]
-  pc?: {
-    userId?: string
-    balance?: number
-  }
-  canDownloadScripts: boolean
-  createdAt: string
-  updatedAt: string
-}
-```
+- Không còn field global `role`. Toàn bộ quyền suy từ `tenants[].roles` và System Tenant.
+- User có **System Tenant + role system-admin** chỉ được có **một** dòng tenant (Platform); không kết hợp với tenant khác.
+- Role hierarchy: user chỉ thấy và gán được role bằng hoặc thấp hơn role cao nhất của mình (xem [RBAC Implementation](../04-architecture/rbac-implementation.md)).
 
 ---
 
-## 🔐 Access Control
+## Access Control
 
-- **Read:**
-  - `super-admin`: Everything.
-  - `org-admin`: Users assigned to the same tenant.
-  - `loc-manager`: Themselves & Customers at their branches.
-  - `customer`: Themselves ONLY.
-- **Auto-Filtering:** The Multi-Tenant plugin automatically applies `tenant` filters based on the user's `tenants` array.
-- **Update:** Hierarchical (Admin can edit Manager, Manager cannot edit Admin).
+- **Create:** `requirePermission(PERMISSIONS.USERS_CREATE)` – system-admin, org-admin.
+- **Read:** `usersReadAccess()` – USERS_READ → scope theo tenant (system-admin = all); USERS_READ_SELF → chỉ bản thân.
+- **Update / Delete:** `usersMutateAccess(PERMISSIONS.USERS_UPDATE / USERS_DELETE)` – system-admin toàn bộ; org-admin trong scope tenant.
+- **Field tenants/roles:** filterOptions ẩn role cao hơn level user; beforeChange strip assignment/role vượt quyền (chặn leo quyền).
+
+---
+
+## Bootstrap & Default Tenant
+
+- **User đầu tiên (chưa có user trong DB):** Khi tạo user với `tenants` rỗng (ví dụ signup), hook gán **System Tenant + system-admin**. System Tenant và Default Tenant được tạo tự động nếu chưa có.
+- **User sau đó:** Gán **Default Tenant + customer** nếu tạo với tenants rỗng.
+
+---
+
+## Tài liệu liên quan
+
+- [RBAC Implementation](../04-architecture/rbac-implementation.md)
+- [PAYLOAD-AUTH-AND-ROLE-PLAN](../04-architecture/PAYLOAD-AUTH-AND-ROLE-PLAN.md)
+- [Multi-Tenancy](../04-architecture/multi-tenancy.md)
 
 ---
 
